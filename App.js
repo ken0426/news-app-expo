@@ -1,11 +1,37 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, FlatList } from 'react-native';
+import News from './components/News';
+import Constants from 'expo-constants';
+import axios from 'axios';
+
+const apiKey = Constants.manifest.extra.newsApiKey;
+
+const Uri = `https://newsapi.org/v2/everything?q=apple&from=2022-07-16&to=2022-07-16&sortBy=popularity&apiKey=${apiKey}`;
 
 export default function App() {
+  const [news, setNews] = useState([]);
+
+  useEffect(() => {
+    getNews();
+  }, []);
+
+  const getNews = async () => {
+    const res = await axios.get(Uri);
+    setNews(res.data.articles);
+  };
+
+  const newData = ({ item }) => {
+    return (
+      <News
+        imageUri={item.urlToImage}
+        title={item.title}
+        subText={item.publishedAt}
+      />
+    );
+  };
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+      <FlatList data={news} renderItem={newData} />
     </View>
   );
 }
@@ -14,7 +40,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
